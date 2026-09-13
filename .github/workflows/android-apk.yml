@@ -29,7 +29,8 @@ jobs:
 
       - name: Build web app
         run: npm run build:dev
-
+- name: Fix Capacitor web directory
+  run: sed -i 's#dist/client#.output/public#' capacitor.config.ts
       - name: Add Android
         run: npx cap add android
 

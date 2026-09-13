@@ -13,7 +13,7 @@ jobs:
 
       - name: Extract project ZIP
         run: |
-          unzip -o Two_of_Us_Final_Source_v6_APK_Builder.zip
+          unzip -q Two_of_Us_Final_Source_v6_APK_Builder.zip
           rm -f Two_of_Us_Final_Source_v6_APK_Builder.zip
 
       - name: Setup Node
@@ -22,15 +22,25 @@ jobs:
           node-version: 22
 
       - name: Install dependencies
-        run: npm install
+        run: npm install --no-audit --no-fund
 
       - name: Install Capacitor
         run: npm install --no-save @capacitor/core @capacitor/cli @capacitor/android
 
       - name: Build web app
         run: npm run build:dev
-- name: Fix Capacitor web directory
-  run: sed -i 's#dist/client#.output/public#' capacitor.config.ts
+
+      - name: Prepare web assets
+        run: |
+          mkdir -p dist/client
+          if [ -d ".output/public" ]; then
+            cp -R .output/public/. dist/client/
+          else
+            echo "Web output directory not found"
+            find . -maxdepth 4 -name index.html -print
+            exit 1
+          fi
+
       - name: Add Android
         run: npx cap add android
 
